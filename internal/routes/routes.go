@@ -3,6 +3,7 @@ package routes
 import (
 	"conductor_backend/internal/controllers"
 	"conductor_backend/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,5 +18,19 @@ func RegisterRoutes(r *gin.Engine) {
 	auth.Use(middleware.AuthMiddleware())
 	{
 		auth.GET("/me", controllers.Me)
+		auth.POST("/courses", middleware.RequireProfessor(), controllers.CreateCourse)
+		auth.DELETE("/courses", middleware.RequireProfessor(), controllers.DeleteCourse)
+		auth.GET("/courses", controllers.GetCourseByUserID)
+		auth.POST("/courses/join", middleware.RequireStudent(), controllers.JoinCourse)
+		auth.DELETE("/courses/:id/leave", middleware.RequireStudent(), controllers.LeaveCourse)
+		auth.GET("/enrollments", middleware.RequireStudent(), controllers.GetEnrollmentsByStudentID)
 	}
+
+	dev := r.Group("/dev")
+	dev.Use(middleware.DevOnly())
+	{
+		dev.DELETE("/courses/:id", controllers.DeleteCourseByID)
+		dev.GET("/show-all-courses", controllers.ShowAllCourses)
+	}
+
 }

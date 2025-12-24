@@ -26,4 +26,6 @@ func Connect() {
 	}
 	DB = db
 	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.Course{})
+	DB.AutoMigrate(&models.Enrollment{})
 }

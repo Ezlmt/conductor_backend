@@ -40,10 +40,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		userID := claims["sub"]
-		role := claims["role"]
+		userID := uint(claims["sub"].(float64))
+		role := int8(claims["role"].(float64))
+
 		c.Set("userID", userID)
 		c.Set("role", role)
-		c.Next()
 	}
 }
