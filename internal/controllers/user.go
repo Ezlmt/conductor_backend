@@ -15,6 +15,7 @@ import (
 
 type registerRequest struct {
 	Email    string `json:"email"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 	Role     int8   `json:"role"`
 }
@@ -44,6 +45,13 @@ func Register(c *gin.Context) {
 	if req.Role == 0 {
 		req.Role = models.RoleStudent
 	}
+	if req.Name == "" {
+		log.Println("register error: name is required")
+		c.JSON(400, gin.H{
+			"message": "Name is required",
+		})
+		return
+	}
 	hashed, err := bcrypt.GenerateFromPassword(
 		[]byte(req.Password),
 		bcrypt.DefaultCost,
@@ -57,6 +65,7 @@ func Register(c *gin.Context) {
 	}
 	user := models.User{
 		Email:        req.Email,
+		Name:         req.Name,
 		PasswordHash: string(hashed),
 		Role:         req.Role,
 		CreatedAt:    time.Now(),
@@ -72,6 +81,7 @@ func Register(c *gin.Context) {
 	c.JSON(201, gin.H{
 		"id":    user.ID,
 		"email": user.Email,
+		"name":  user.Name,
 		"role":  user.Role,
 	})
 }

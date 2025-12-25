@@ -58,18 +58,15 @@ func CreateCourse(c *gin.Context) {
 	})
 }
 
-type deleteCourseRequest struct {
-	Id uint `json:"id"`
-}
-
 func DeleteCourse(c *gin.Context) {
-	var req deleteCourseRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Println("delete course error: invalid request")
-		c.JSON(400, gin.H{"message": "Invalid request"})
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		log.Println("delete course error: invalid course ID")
+		c.JSON(400, gin.H{"message": "Invalid course ID"})
 		return
 	}
-	result := database.DB.Delete(&models.Course{}, req.Id)
+	result := database.DB.Delete(&models.Course{}, id)
 	if result.Error != nil {
 		log.Println("delete course error: failed to delete course")
 		c.JSON(500, gin.H{"message": "Failed to delete course"})

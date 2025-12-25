@@ -10,6 +10,10 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.Status(204)
+			return
+		}
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(401, gin.H{
@@ -45,5 +49,6 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Set("userID", userID)
 		c.Set("role", role)
+		c.Next()
 	}
 }
