@@ -142,11 +142,50 @@ func Login(c *gin.Context) {
 		"token": token,
 		"user": gin.H{
 			"id":    user.ID,
+			"name":  user.Name,
 			"email": user.Email,
 			"role":  user.Role,
 		},
 	})
 
+}
+
+type setNameRequest struct {
+	Name string `json:"name"`
+}
+
+func SetName(c *gin.Context) {
+	var req setNameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println("set name error: invalid request")
+		c.JSON(400, gin.H{"message": "Invalid request"})
+		return
+	}
+	if req.Name == "" {
+		log.Println("set name error: name is required")
+		c.JSON(400, gin.H{"message": "Name is required"})
+		return
+	}
+	userID := c.GetUint("userID")
+	if userID == 0 {
+		log.Println("set name error: invalid userID")
+		c.JSON(401, gin.H{"message": "Unauthorized"})
+		return
+	}
+	// Use Update to only update the Name field, avoiding issues with NULL values
+	result := database.DB.Model(&models.User{}).Where("id = ?", userID).Update("name", req.Name)
+	if result.Error != nil {
+		log.Println("set name error: failed to save user", result.Error)
+		c.JSON(500, gin.H{"message": "Failed to save user"})
+		return
+	}
+	if result.RowsAffected == 0 {
+		log.Println("set name error: user not found")
+		c.JSON(404, gin.H{"message": "User not found"})
+		return
+	}
+	log.Println("set name success: user name set")
+	c.JSON(200, gin.H{"message": "User name set successfully"})
 }
 
 func Me(c *gin.Context) {
@@ -156,10 +195,17 @@ func Me(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
-	role, _ := c.Get("role")
+	user := models.User{}
+	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		log.Println("me error: failed to get user")
+		c.JSON(401, gin.H{"message": "Unauthorized"})
+		return
+	}
 	log.Println("me success: userID found")
 	c.JSON(200, gin.H{
-		"id":   userID,
-		"role": role,
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role,
 	})
 }
