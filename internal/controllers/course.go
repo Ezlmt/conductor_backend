@@ -182,13 +182,6 @@ func LeaveCourse(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "Unenrolled course successfully"})
 }
 
-type enrollmentResponse struct {
-	CouresId   uint      `json:"courseId"`
-	CouresName string    `json:"courseName"`
-	CouresCode string    `json:"courseCode"`
-	JoinedAt   time.Time `json:"joinedAt"`
-}
-
 func GetEnrollmentsByStudentID(c *gin.Context) {
 	studentID, exists := c.Get("userID")
 	if !exists {
@@ -204,17 +197,12 @@ func GetEnrollmentsByStudentID(c *gin.Context) {
 		return
 	}
 	log.Println("get enrollments by studentID success: enrollments found")
-	responses := []enrollmentResponse{}
+	courses := []models.Course{}
 	for e := range enrollments {
-		responses = append(responses, enrollmentResponse{
-			CouresId:   enrollments[e].Course.ID,
-			CouresName: enrollments[e].Course.Name,
-			CouresCode: enrollments[e].Course.Code,
-			JoinedAt:   enrollments[e].CreatedAt,
-		})
+		courses = append(courses, enrollments[e].Course)
 	}
 	log.Println("get enrollments by studentID success: responses found")
-	c.JSON(200, gin.H{"courses": responses})
+	c.JSON(200, gin.H{"courses": courses})
 }
 
 // ------------------------------------------------------

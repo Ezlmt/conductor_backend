@@ -23,7 +23,7 @@ func RegisterRoutes(r *gin.Engine) {
 		auth.GET("/courses", controllers.GetCourseByUserID)
 		auth.POST("/courses/join", middleware.RequireStudent(), controllers.JoinCourse)
 		auth.DELETE("/courses/:id/leave", middleware.RequireStudent(), controllers.LeaveCourse)
-		auth.GET("/enrollments", middleware.RequireStudent(), controllers.GetEnrollmentsByStudentID)
+		auth.GET("/courses/enrolled", middleware.RequireStudent(), controllers.GetEnrollmentsByStudentID)
 		auth.POST("/users/name", controllers.SetName)
 	}
 
