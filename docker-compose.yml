@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  db: 
+    image: postgres:16
+    container_name: conductor_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: conductor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
