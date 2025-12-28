@@ -26,7 +26,7 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 	course := models.Course{}
-	err := database.DB.Where("name = ?", req.Name).First(&course).Error
+	err := database.DB.Where("code = ?", req.Code).First(&course).Error
 	if err == nil {
 		log.Println("create course error: course already exists")
 		c.JSON(400, gin.H{"message": "Course already exists"})
@@ -189,25 +189,20 @@ func GetEnrollmentsByStudentID(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "Missing userID"})
 		return
 	}
-	enrollments := []models.Enrollment{}
-	err := database.DB.Where("user_id = ?", studentID).Preload("Course").Find(&enrollments).Error
+	courses := []models.Course{}
+	err := database.DB.
+		Joins("JOIN enrollments ON enrollments.course_id = courses.id").
+		Where("enrollments.user_id = ?", studentID).
+		Find(&courses).Error
 	if err != nil {
-		log.Println("get enrollments by studentID error: failed to get enrollments")
-		c.JSON(500, gin.H{"message": "Failed to get enrollments"})
+		log.Println("get enrollments by studentID error: failed to get courses")
+		c.JSON(500, gin.H{"message": "Failed to get courses"})
 		return
 	}
-	log.Println("get enrollments by studentID success: enrollments found")
-	courses := []models.Course{}
-	for e := range enrollments {
-		courses = append(courses, enrollments[e].Course)
-	}
-	log.Println("get enrollments by studentID success: responses found")
+	log.Println("get enrollments by studentID success: courses found")
 	c.JSON(200, gin.H{"courses": courses})
 }
 
-// ------------------------------------------------------
-// All functions below are only for development purposes
-// ------------------------------------------------------
 func DeleteCourseByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -228,6 +223,25 @@ func DeleteCourseByID(c *gin.Context) {
 	}
 	log.Println("delete course by ID success: course deleted")
 	c.JSON(200, gin.H{"message": "Course deleted successfully"})
+}
+
+func GetCourseDeleteInfo(c *gin.Context) {
+	courseID := c.Param("id")
+	var course models.Course
+	if err := database.DB.First(&course, courseID).Error; err != nil {
+		c.JSON(404, gin.H{"message": "Course not found"})
+		return
+	}
+
+	var count int64
+	database.DB.
+		Model(&models.Enrollment{}).Where("course_id = ?", courseID).Count(&count)
+
+	c.JSON(200, gin.H{
+		"courseName":      course.Name,
+		"courseID":        course.ID,
+		"enrollmentCount": count,
+	})
 }
 
 func ShowAllCourses(c *gin.Context) {
