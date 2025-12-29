@@ -18,7 +18,7 @@ const (
 	port     = 5432
 )
 
-func Connect() {
+func ConnectPostgreSQL() {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbnema, password)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
