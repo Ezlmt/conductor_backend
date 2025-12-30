@@ -21,7 +21,8 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetOutput(os.Stdout)
 	log.Println("Starting server...")
-	database.Connect()
+	database.ConnectPostgreSQL()
+	database.ConnectRedis()
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     getCorsOrigins(),

@@ -3,6 +3,8 @@ package controllers
 import (
 	"conductor_backend/internal/database"
 	"conductor_backend/internal/models"
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -200,17 +202,34 @@ func SetName(c *gin.Context) {
 
 func Me(c *gin.Context) {
 	userID, ok := c.Get("userID")
+	key := fmt.Sprintf("user:%d", userID)
 	if !ok {
 		log.Println("me error: missing userID")
 		c.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
+	val, err := database.RDB.Get(database.Ctx, key).Result()
+	if err == nil {
+		log.Println("me success: user found in cache")
+		var user models.User
+		json.Unmarshal([]byte(val), &user)
+		c.JSON(200, gin.H{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+		})
+		return
+	}
+	log.Println("me success: user not found in cache")
 	user := models.User{}
 	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		log.Println("me error: failed to get user")
 		c.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
+	bytes, _ := json.Marshal(user)
+	database.RDB.Set(database.Ctx, key, bytes, 5*time.Minute)
 	log.Println("me success: userID found")
 	c.JSON(200, gin.H{
 		"id":    user.ID,
