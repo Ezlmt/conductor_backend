@@ -30,4 +30,4 @@ jobs:
       
       - name: Docker build
         run: |
-        docker build -t conductor_backend:ci .
+          docker build -t conductor_backend:ci .
