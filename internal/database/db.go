@@ -3,6 +3,7 @@ package database
 import (
 	"conductor_backend/internal/models"
 	"fmt"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,22 +11,28 @@ import (
 
 var DB *gorm.DB
 
-const (
-	host     = "localhost"
-	user     = "user"
-	password = "123"
-	dbnema   = "conductor"
-	port     = 5432
-)
-
 func ConnectPostgreSQL() {
-	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbnema, password)
+	host := getEnv("DB_HOST", "localhost")
+	user := getEnv("DB_USER", "user")
+	password := getEnv("DB_PASSWORD", "123")
+	dbname := getEnv("DB_NAME", "conductor")
+	port := getEnv("DB_PORT", "5432")
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", host, port, user, dbname, password)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		panic(err)
 	}
 	DB = db
-	DB.AutoMigrate(&models.User{})
-	DB.AutoMigrate(&models.Course{})
-	DB.AutoMigrate(&models.Enrollment{})
+	DB.AutoMigrate(
+		&models.User{},
+		&models.Course{},
+		&models.Enrollment{},
+	)
+}
+
+func getEnv(key, defaultVal string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return defaultVal
 }
