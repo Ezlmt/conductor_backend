@@ -1,10 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
+        "description": "Conductor backend API",
         "title": "Conductor API",
-        "contact": {},
+        "termsOfService": "https://example.com/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "support@example.com"
+        },
+        "license": {
+            "name": "MIT"
+        },
         "version": "1.0"
     },
-    "basePath": "/",
     "paths": {}
 }

@@ -16,7 +16,15 @@ import (
 
 // @title Conductor API
 // @version 1.0
-// @BasePath /
+// @description Conductor backend API
+// @termsOfService https://example.com/terms/
+
+// @contact.name API Support
+// @contact.email support@example.com
+
+// @license.name MIT
+
+// @openapi 3.0
 func main() {
 	_ = godotenv.Load()
 
