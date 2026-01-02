@@ -8,11 +8,15 @@ import (
 	"os"
 	"strings"
 
+	_ "conductor_backend/docs"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
+// @title Conductor API
+// @version 1.0
+// @BasePath /
 func main() {
 	_ = godotenv.Load()
 
