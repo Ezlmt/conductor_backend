@@ -13,6 +13,9 @@ import (
 	"gorm.io/gorm"
 )
 
+
+
+
 type createCourseRequest struct {
 	Name string `json:"name"`
 	Code string `json:"code"`
